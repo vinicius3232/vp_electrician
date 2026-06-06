@@ -178,7 +178,7 @@ Resultado da varredura completa do `tw-electrician` (todos os eventos, NUI actio
 ### 9.2 Roadmap (atualizado)
 | # | Item | Original | Estado | Obs |
 |---|------|----------|--------|-----|
-| 1 | **Lift móvel** (plataforma sobe/desce ↑↓, trilhos, carrega o player, sync) | sim | ✅ implementado | ⚠️ "pegada" de ride precisa de ajuste fino in-game |
+| 1 | **Lift móvel** (plataforma sobe/desce ↑↓, trilhos, sync) | sim | ✅ lógica do base | usa `SlideObject` em prop congelado + colisão (player sobe junto, SEM teleporte do ped), igual ao original |
 | 2 | **HUD/Scoreboard ao vivo** (progresso `x/N` + score por player) | NUI | ✅ feito | verificado no preview |
 | 3 | **Tela de recompensa** (earnings: $ + XP + reparos) | NUI `finishBox` | ✅ feito | verificado no preview |
 | 4 | **Comando** de reset (`Config.JobResetCommand`) | sim | ✅ feito | `/eletricistareset` |

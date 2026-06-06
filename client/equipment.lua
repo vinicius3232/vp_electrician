@@ -1,18 +1,19 @@
 -- client/equipment.lua :: escada (estatica) e LIFT MOVEL (elevador)
--- Referencia: tw-electrician (createLift/moveLift). Reescrito do zero.
--- NOTA: a "pegada" do elevador (carregar o player) e ajustada in-game; aqui
--- o player controlador tem a posicao fixada na plataforma enquanto sobe/desce.
+-- LIFT: logica do tw-electrician original — plataforma CONGELADA movida por
+-- SlideObject; o jogador sobe junto POR COLISAO (sem teleportar o ped).
+-- Controle: setas cima/baixo enquanto estiver sobre a plataforma. Sincronizado.
 
-local spawnedEquipment = {} -- [targetId] = { kind, props={}, lift={...} }
+local spawnedEquipment = {} -- [targetId] = { kind, props={}, platform, lift={...}, sliding }
 local building = false
-local LIFT_SPEED = 0.06      -- m por frame ao segurar a tecla
+local LIFT_SPEED = 0.05            -- velocidade do SlideObject (original: 0.015)
 local CTRL_UP, CTRL_DOWN = 172, 173 -- setas cima/baixo
 
-local function spawnProp(model, coords, heading)
+local function spawnProp(model, coords, heading, collision)
     if not IsModelInCdimage(model) then return end
     lib.requestModel(model)
     local obj = CreateObject(model, coords.x, coords.y, coords.z, false, true, false)
     SetEntityHeading(obj, heading or 0.0)
+    if collision then SetEntityCollision(obj, true, true) end
     FreezeEntityPosition(obj, true)
     SetModelAsNoLongerNeeded(model)
     return obj
@@ -56,20 +57,22 @@ RegisterNetEvent('vp_electrician:equipmentBuilt', function(targetId, kind, coord
         spawnedEquipment[targetId] = { kind = 'ladder', props = props }
     elseif kind == 'lift' then
         local base = groundZ(coords.x, coords.y, coords.z - 8.0)
-        local top  = coords.z - 1.0
-        -- trilhos do chao ao topo
-        local rails = {}
-        local h = base
-        while h < top do
+        local minH = base                  -- plataforma no chao (player sobe nela)
+        local maxH = (coords.z - 1.0)       -- topo: junto ao poste
+        if maxH < minH + 2.0 then maxH = minH + 2.0 end
+        -- trilhos (visual)
+        local rails, h = {}, base
+        while h < maxH do
             local r = spawnProp(Config.Equipment.lift.rail, vec3(coords.x, coords.y, h), 0.0)
             if r then rails[#rails + 1] = r end
             h = h + 5.0
         end
-        -- plataforma comeca no chao
-        local platform = spawnProp(Config.Equipment.lift.model, vec3(coords.x, coords.y, base), 0.0)
+        -- plataforma congelada COM colisao (o player fica em pe nela)
+        local platform = spawnProp(Config.Equipment.lift.model, vec3(coords.x, coords.y, minH), 0.0, true)
         spawnedEquipment[targetId] = {
             kind = 'lift', props = rails, platform = platform,
-            lift = { x = coords.x, y = coords.y, base = base, top = top, height = base },
+            lift = { x = coords.x, y = coords.y, min = minH, max = maxH, moving = false, dir = nil },
+            sliding = false,
         }
     end
 
@@ -85,19 +88,34 @@ RegisterNetEvent('vp_electrician:equipmentRemoved', function(targetId)
     end
 end)
 
--- altura do lift sincronizada por OUTROS players
-RegisterNetEvent('vp_electrician:liftMoved', function(targetId, height)
+-- estado de movimento do lift sincronizado (vem do servidor p/ TODOS, inclusive quem mandou)
+RegisterNetEvent('vp_electrician:liftMove', function(targetId, dir, toggle)
     local eq = spawnedEquipment[targetId]
-    if not eq or eq.kind ~= 'lift' or not eq.platform then return end
-    eq.lift.height = height
-    if DoesEntityExist(eq.platform) then
-        SetEntityCoords(eq.platform, eq.lift.x, eq.lift.y, height, false, false, false, false)
-    end
+    if not eq or eq.kind ~= 'lift' then return end
+    eq.lift.moving = toggle
+    eq.lift.dir = toggle and dir or nil
+    StartLiftSlide(eq)
 end)
+
+--- Thread que desliza a plataforma enquanto moving==true (SlideObject + colisao).
+function StartLiftSlide(eq)
+    if eq.sliding then return end
+    eq.sliding = true
+    CreateThread(function()
+        while eq.lift.moving and eq.platform and DoesEntityExist(eq.platform) do
+            local targetZ = eq.lift.dir == 'up' and eq.lift.max or eq.lift.min
+            SlideObject(eq.platform, eq.lift.x, eq.lift.y, targetZ,
+                LIFT_SPEED, LIFT_SPEED, LIFT_SPEED, true)
+            Wait(0)
+        end
+        eq.sliding = false
+    end)
+end
 
 function DestroyEquipment(targetId)
     local eq = spawnedEquipment[targetId]
     if not eq then return end
+    if eq.lift then eq.lift.moving = false end
     for _, obj in ipairs(eq.props) do
         if DoesEntityExist(obj) then DeleteEntity(obj) end
     end
@@ -111,7 +129,7 @@ function ClearEquipment()
 end
 
 ---------------------------------------------------------------------
--- CONTROLE DO LIFT (subir/descer) + REMOCAO (G)
+-- CONTROLE DO LIFT (setas) + REMOCAO (G)
 ---------------------------------------------------------------------
 CreateThread(function()
     while true do
@@ -121,16 +139,11 @@ CreateThread(function()
             for id, eq in pairs(spawnedEquipment) do
                 local target = CurrentMission and CurrentMission.targets[id]
                 if target and not target.fixed then
-                    -- remocao (G) perto da base
-                    local distBase = #(pc - vec3(target.coords.x, target.coords.y, pc.z))
-                    if distBase < 4.0 then
+                    if eq.kind == 'lift' and eq.platform and DoesEntityExist(eq.platform) then
+                        ControlLift(id, eq, pc)
+                    elseif #(pc - target.coords) < 4.0 then
                         sleep = 0
-                        if eq.kind == 'lift' then
-                            DrawText3D(vec3(eq.lift.x, eq.lift.y, eq.lift.height + 1.0), '↑/↓ elevador  •  [G] remover')
-                            ControlLift(id, eq)
-                        else
-                            DrawText3D(target.coords, locale('remove_equipment'))
-                        end
+                        DrawText3D(target.coords, locale('remove_equipment'))
                         if IsControlJustReleased(0, 47) then -- G
                             TriggerServerEvent('vp_electrician:removeEquipment', id)
                         end
@@ -142,33 +155,36 @@ CreateThread(function()
     end
 end)
 
-local lastLiftSync = 0
-function ControlLift(id, eq)
-    local lift = eq.lift
-    if not eq.platform or not DoesEntityExist(eq.platform) then return end
-    local pc = GetEntityCoords(cache.ped)
-    -- jogador precisa estar SOBRE a plataforma (perto no XY e proximo do topo dela)
-    local onXY = #(vec2(pc.x, pc.y) - vec2(lift.x, lift.y)) < 1.6
-    local onZ  = math.abs(pc.z - (lift.height + 1.0)) < 2.0
-    if not (onXY and onZ) then return end
+--- Player em pe na plataforma controla a altura com as setas.
+--- NAO teleporta o ped: ele sobe por colisao (igual ao script base).
+function ControlLift(id, eq, pc)
+    local platCoords = GetEntityCoords(eq.platform)
+    local distXY = #(vec2(pc.x, pc.y) - vec2(platCoords.x, platCoords.y))
+    local onPlatform = distXY < 1.8 and (pc.z - platCoords.z) > -0.5 and (pc.z - platCoords.z) < 2.5
+    local distGround = #(pc - vec3(eq.lift.x, eq.lift.y, pc.z))
 
-    local moved = false
-    if IsControlPressed(0, CTRL_UP) and lift.height < lift.top then
-        lift.height = math.min(lift.top, lift.height + LIFT_SPEED); moved = true
-    elseif IsControlPressed(0, CTRL_DOWN) and lift.height > lift.base then
-        lift.height = math.max(lift.base, lift.height - LIFT_SPEED); moved = true
+    if onPlatform or distGround < 3.0 then
+        DrawText3D(vec3(eq.lift.x, eq.lift.y, platCoords.z + 1.2), '↑/↓ controlar  •  [G] remover')
     end
 
-    if moved then
-        SetEntityCoords(eq.platform, lift.x, lift.y, lift.height, false, false, false, false)
-        -- carrega o controlador junto
-        SetEntityCoords(cache.ped, lift.x, lift.y, lift.height + 1.0, false, false, false, false)
-        -- sincroniza p/ os outros (throttle)
-        local now = GetGameTimer()
-        if now - lastLiftSync > 120 then
-            lastLiftSync = now
-            TriggerServerEvent('vp_electrician:moveLift', id, lift.height)
-        end
+    -- remover perto da base
+    if distGround < 3.5 and IsControlJustReleased(0, 47) then -- G
+        eq.lift.moving = false
+        TriggerServerEvent('vp_electrician:removeEquipment', id)
+        return
+    end
+
+    if not onPlatform then return end
+
+    if IsControlJustPressed(0, CTRL_UP) then
+        TriggerServerEvent('vp_electrician:moveLift', id, 'up', true)
+    elseif IsControlJustReleased(0, CTRL_UP) then
+        TriggerServerEvent('vp_electrician:moveLift', id, 'up', false)
+    end
+    if IsControlJustPressed(0, CTRL_DOWN) then
+        TriggerServerEvent('vp_electrician:moveLift', id, 'down', true)
+    elseif IsControlJustReleased(0, CTRL_DOWN) then
+        TriggerServerEvent('vp_electrician:moveLift', id, 'down', false)
     end
 end
 

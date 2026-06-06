@@ -40,12 +40,11 @@ Pega ordem de serviço num NPC → cria lobby (até 4) → escolhe região → c
 | 2 | Lobby coop (convite/aceite/kick/região/scoreboard) | ✅ (scoreboard = notify; NUI futura) |
 | 3 | Missão (spawn veículo+keys+fuel, blips, fumaça, alvos) | ✅ |
 | 4 | Minigames + 5 tarefas | ✅ **3 minigames NUI custom** (solda, painel/voltímetro, fiação) |
-| 5 | Escada + Lift | ✅ escada + **lift móvel** (sobe/desce, sync) — ride a ajustar in-game |
+| 5 | Escada + Lift | ✅ escada + **lift móvel** (lógica do base: SlideObject + colisão, player sobe junto) |
 | 6 | Recompensa + XP/level + persistência + hardening | ✅ |
 | + | HUD ao vivo + tela de recompensa + 4 regiões + comando reset + blip do veículo | ✅ |
 
 ## TODO de fidelidade (restante, opcional)
-- Ajuste fino da "pegada" do lift (carregar o player) — precisa de teste no jogo.
 - Extras cosméticos do veículo; menu de lobby em NUI custom (hoje ox_lib).
 - Elevador (lift) móvel com controle de altura.
 - Scoreboard/HUD visual ao vivo.

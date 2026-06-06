@@ -92,18 +92,15 @@ RegisterNetEvent('vp_electrician:removeEquipment', function(targetId)
     vpBroadcast(lobby, 'vp_electrician:equipmentRemoved', target.id)
 end)
 
--- altura do lift: o controlador move localmente e o servidor repassa aos outros
-RegisterNetEvent('vp_electrician:moveLift', function(targetId, height)
+-- movimento do lift: estado (dir/toggle) repassado a TODOS do lobby (inclusive
+-- quem enviou), que rodam o mesmo SlideObject localmente — igual ao script base.
+RegisterNetEvent('vp_electrician:moveLift', function(targetId, dir, toggle)
     local src = source
-    if type(height) ~= 'number' then return end
+    if dir ~= 'up' and dir ~= 'down' then return end
+    if type(toggle) ~= 'boolean' then return end
     local lobby, cid = vpGetLobbyBySrc(src)
     if not lobby or not lobby.mission then return end
     local target = lobby.mission.targets[targetId]
     if not target or target.equipment ~= 'lift' then return end
-    target.liftHeight = height
-    for pcid, pl in pairs(lobby.players) do
-        if pl.src ~= src then
-            TriggerClientEvent('vp_electrician:liftMoved', pl.src, targetId, height)
-        end
-    end
+    vpBroadcast(lobby, 'vp_electrician:liftMove', targetId, dir, toggle)
 end)
