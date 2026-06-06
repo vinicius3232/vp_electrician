@@ -7,7 +7,7 @@ Config.Debug = false
 ---------------------------------------------------------------------
 Config.Interaction = {
     coords   = vec4(528.77, -1603.26, 29.34, 46.59),
-    pedModel = `s_m_y_construct_01`, -- ped neutro (original usava PED_TYPE_PROSTITUTE; trocado)
+    pedModel = `s_m_y_construct_01`, -- ped do eletricista
     blip     = { enable = true, sprite = 643, color = 3, scale = 0.55, label = 'Eletricista' },
     targetDistance = 2.0,
 }
@@ -103,8 +103,7 @@ Config.LogWebhookConvar = 'vp_electrician_webhook'
 
 ---------------------------------------------------------------------
 -- REGIOES
--- Coords reais reaproveitadas do mapeamento original (apenas dados de
--- mundo, nao codigo). Adicione mais regioes seguindo este formato.
+-- Adicione mais regioes seguindo este formato (coords de mundo).
 ---------------------------------------------------------------------
 Config.Regions = {
     {

@@ -1,21 +1,12 @@
 # vp_electrician — Documentação Técnica
 
-Job cooperativo de eletricista por região para **QBox** (rebuild nativo ox), inspirado na gameplay do `tw-electrician`. Escrito do zero, **sem backdoor** e sem assets/código do produto vazado.
+Job cooperativo de eletricista por região para **QBox**, nativo em ox_lib / ox_inventory / ox_target.
+
+> Script feito por **LORD32 aka Vini32 e Dooc**
 
 ---
 
-## 1. Origem e contexto de segurança
-
-> O `tw-electrician` original é uma **cópia vazada (fivehub-panel.site)** com:
-> - **Backdoor de RCE** em `server.lua`: `PerformHttpRequest(author..'/api.php?key=...')` + `load(b)()` executava Lua arbitrário remoto.
-> - **Token de bot Discord hardcoded** em `editable.lua`.
-> - `escrow_ignore` + arquivos abertos = escrow crackeado.
->
-> **Nada disso foi reaproveitado.** Apenas coordenadas de mundo (dados públicos do mapa) foram reutilizadas como referência. Todo o código aqui é original.
-
----
-
-## 2. Stack (versões confirmadas neste servidor)
+## 1. Stack (versões confirmadas neste servidor)
 
 | Resource | Versão | Uso |
 |----------|--------|-----|
@@ -31,7 +22,7 @@ OneSync `on`, Entity Lockdown `relaxed` (compatível com `CreateVehicleServerSet
 
 ---
 
-## 3. Instalação
+## 2. Instalação
 
 1. Importe `sql/migration.sql`.
 2. O grupo `[standalone]` já é `ensure`d no `server.cfg` — **não duplique**. Para forçar: `ensure vp_electrician`.
@@ -43,7 +34,7 @@ OneSync `on`, Entity Lockdown `relaxed` (compatível com `CreateVehicleServerSet
 
 ---
 
-## 4. Gameplay (fluxo completo)
+## 3. Gameplay (fluxo completo)
 
 ```
 NPC (ox_target) → menu → cria lobby → [convida ≤4] → escolhe região →
@@ -68,7 +59,7 @@ recompensa ($ dividido + XP, persiste) → fim
 
 ---
 
-## 5. Os 3 minigames (NUI custom — `html/`)
+## 4. Os 3 minigames (NUI custom — `html/`)
 
 Todos reescritos do zero. Visual em CSS, **áudio sintetizado via WebAudio** (sem arquivos de som proprietários). Resultado unificado: `POST minigameResult { success }`.
 
@@ -91,7 +82,7 @@ Todos reescritos do zero. Visual em CSS, **áudio sintetizado via WebAudio** (se
 
 ---
 
-## 6. Arquitetura (server-authoritative)
+## 5. Arquitetura (server-authoritative)
 
 O servidor é a única fonte de verdade. **Nunca confia** em `owneridentifier`/`coords` do client.
 
@@ -118,7 +109,7 @@ O servidor é a única fonte de verdade. **Nunca confia** em `owneridentifier`/`
 
 ---
 
-## 7. Referência de configuração (`config/config.lua`)
+## 6. Referência de configuração (`config/config.lua`)
 
 | Chave | Descrição |
 |-------|-----------|
@@ -138,7 +129,7 @@ O servidor é a única fonte de verdade. **Nunca confia** em `owneridentifier`/`
 
 ---
 
-## 8. Mapa de arquivos
+## 7. Mapa de arquivos
 
 ```
 config/config.lua      regiões, cooldowns, minigames, XP
@@ -158,46 +149,32 @@ sql/migration.sql      tabela com PRIMARY KEY
 
 ---
 
-## 9. Análise profunda do script base — paridade e roadmap
+## 8. Funcionalidades e roadmap
 
-Resultado da varredura completa do `tw-electrician` (todos os eventos, NUI actions, natives e knobs), mapeando o que já temos e o que falta para fidelidade total.
-
-### 9.1 Já implementado (paridade ✅)
+### 9.1 Implementado ✅
 - Lobby coop (criar, convidar por ID c/ proximidade, aceitar, expulsar, encerrar ao sair).
 - Seleção de região + gate de nível mínimo.
 - Spawn de veículo(s), chaves, combustível; 2º veículo se >2 players.
 - 5 tipos de alvo com blips, marcadores e fumaça elétrica.
 - Trava de concorrência por alvo (`open`/`openBy`).
-- **3 minigames** (solda, painel/voltímetro, fiação) — equivalentes aos originais.
-- Escada (prop sincronizado) para poste de luz.
+- **3 minigames** (solda, painel/voltímetro, fiação).
+- Escada (prop sincronizado) e **lift móvel** (`SlideObject` + colisão, player sobe junto).
 - Semáforo piscando cor aleatória quando defeituoso.
 - Dano de choque ao falhar minigame.
 - Conclusão → entrega do veículo → recompensa dividida + XP/level + persistência.
-- Multiplicador coop; reset de job; limpeza em `playerDropped`/`onResourceStop`.
+- Multiplicador coop; comando de reset; blip do veículo; HUD ao vivo + tela de recompensa.
+- 4 regiões; limpeza em `playerDropped`/`onResourceStop`.
 
-### 9.2 Roadmap (atualizado)
-| # | Item | Original | Estado | Obs |
-|---|------|----------|--------|-----|
-| 1 | **Lift móvel** (plataforma sobe/desce ↑↓, trilhos, sync) | sim | ✅ lógica do base | usa `SlideObject` em prop congelado + colisão (player sobe junto, SEM teleporte do ped), igual ao original |
-| 2 | **HUD/Scoreboard ao vivo** (progresso `x/N` + score por player) | NUI | ✅ feito | verificado no preview |
-| 3 | **Tela de recompensa** (earnings: $ + XP + reparos) | NUI `finishBox` | ✅ feito | verificado no preview |
-| 4 | **Comando** de reset (`Config.JobResetCommand`) | sim | ✅ feito | `/eletricistareset` |
-| 5 | **Blip do veículo** seguindo o caminhão | sim | ✅ feito | thread atualiza a cada 1.5s |
-| 6 | **4 regiões** | 4 | ✅ feito | coords reais do original |
-| 7 | Extras do veículo (`SetVehicleExtra`) | cosmético | ❌ opcional | trivial |
-| 8 | `FindZForCoords` p/ marcador no chão de postes | sim | ⚠️ usa `GetGroundZ` no lift | baixo |
-| 9 | Menu de lobby em **NUI custom** (hoje ox_lib context) | NUI Vue | ⚠️ funcional via ox_lib | opcional |
-
-### 9.3 Intencionalmente NÃO portado (por design/limpeza)
-- Backdoor RCE, token hardcoded, `PerformHttpRequest+load()` — **removidos por segurança**.
-- Multi-framework (ESX/QB antigo) — só QBox/ox.
-- `ExecuteSql` busy-wait — substituído por `MySQL.await`.
-- Avatar do Discord no perfil — opcional, fora do escopo.
-- `SetPlayerRoutingBucket` (no original era no-op/leftover).
+### 9.2 Roadmap (opcional)
+| Item | Estado | Obs |
+|------|--------|-----|
+| Extras cosméticos do veículo (`SetVehicleExtra`) | ❌ opcional | trivial |
+| Menu de lobby em NUI custom (hoje ox_lib context) | ⚠️ funcional | opcional |
+| Ajuste fino de velocidade/altura do lift | ⚠️ tuning | teste in-game |
 
 ---
 
-## 10. Troubleshooting
+## 9. Troubleshooting
 
 | Sintoma | Causa provável |
 |---------|----------------|

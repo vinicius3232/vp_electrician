@@ -1,8 +1,8 @@
 # vp_electrician
 
-Job cooperativo de eletricista por região — **rebuild nativo QBox/ox** inspirado na gameplay do `tw-electrician`, escrito do zero, **sem backdoor** e sem código/assets do produto original vazado.
+Job cooperativo de eletricista por região para **QBox** (nativo ox_lib/ox_inventory/ox_target).
 
-> ⚠️ O `tw-electrician` original continha um backdoor de execução remota (`PerformHttpRequest` + `load()` para `fivehub-panel.site`) e um token de bot Discord hardcoded. **Nada disso foi reaproveitado aqui.** Apenas coordenadas de mundo (dados públicos do mapa) foram reutilizadas.
+> Script feito por **LORD32 aka Vini32 e Dooc**
 
 ## Stack (versões deste servidor)
 - qbx_core 1.23.0 · ox_lib 3.32.2 · ox_inventory 2.44.8 · ox_target · ox_fuel · qbx_vehiclekeys · oxmysql

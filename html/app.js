@@ -1,6 +1,5 @@
-// vp_electrician :: NUI dos 3 minigames
-// Referencia comportamental: tw-electrician (fourminigame / pano-volt / drag),
-// reescritos do zero, sem assets proprietarios. Audio sintetizado (WebAudio).
+// vp_electrician :: NUI dos 3 minigames — feito por LORD32 aka Vini32 e Dooc
+// Audio sintetizado (WebAudio), visual CSS.
 // Resultado unificado: POST minigameResult { success }.
 
 const RES = (typeof GetParentResourceName === 'function') ? GetParentResourceName() : 'vp_electrician';

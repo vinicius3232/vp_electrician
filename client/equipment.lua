@@ -1,11 +1,11 @@
 -- client/equipment.lua :: escada (estatica) e LIFT MOVEL (elevador)
--- LIFT: logica do tw-electrician original — plataforma CONGELADA movida por
--- SlideObject; o jogador sobe junto POR COLISAO (sem teleportar o ped).
+-- LIFT: plataforma CONGELADA movida por SlideObject; o jogador sobe junto
+-- POR COLISAO (sem teleportar o ped).
 -- Controle: setas cima/baixo enquanto estiver sobre a plataforma. Sincronizado.
 
 local spawnedEquipment = {} -- [targetId] = { kind, props={}, platform, lift={...}, sliding }
 local building = false
-local LIFT_SPEED = 0.05            -- velocidade do SlideObject (original: 0.015)
+local LIFT_SPEED = 0.05            -- velocidade do SlideObject
 local CTRL_UP, CTRL_DOWN = 172, 173 -- setas cima/baixo
 
 local function spawnProp(model, coords, heading, collision)
