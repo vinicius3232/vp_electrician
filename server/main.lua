@@ -122,6 +122,7 @@ end)
 ---------------------------------------------------------------------
 RegisterNetEvent('vp_electrician:invite', function(targetId)
     local src = source
+    if not Security.canAct(src, 'invite', Config.Cooldowns.invite) then return end
     targetId = tonumber(targetId)
     if not targetId then return end
     local lobby, cid = getLobbyBySrc(src)
@@ -147,6 +148,7 @@ end)
 
 RegisterNetEvent('vp_electrician:acceptInvite', function()
     local src = source
+    if not Security.canAct(src, 'acceptInvite', Config.Cooldowns.acceptInvite) then return end
     local player, cid = Security.getPlayer(src)
     if not cid then return end
     local ownerCid = PendingInvites[cid]
@@ -168,6 +170,8 @@ end)
 
 RegisterNetEvent('vp_electrician:kickPlayer', function(targetCid)
     local src = source
+    if not Security.canAct(src, 'kickPlayer', Config.Cooldowns.kickPlayer) then return end
+    if type(targetCid) ~= 'string' then return end
     local lobby, cid = getLobbyBySrc(src)
     if not lobby or lobby.owner ~= cid then return end
     if targetCid == cid then return end
@@ -234,6 +238,7 @@ end
 
 RegisterNetEvent('vp_electrician:startJob', function()
     local src = source
+    if not Security.canAct(src, 'startJob', Config.Cooldowns.startJob) then return end
     local lobby, cid = getLobbyBySrc(src)
     if not lobby or lobby.owner ~= cid then return end
     if lobby.started then
@@ -284,6 +289,7 @@ end)
 
 RegisterNetEvent('vp_electrician:resetJob', function()
     local src = source
+    if not Security.canAct(src, 'resetJob', Config.Cooldowns.resetJob) then return end
     local lobby, cid = getLobbyBySrc(src)
     if not lobby then return end
     if lobby.owner ~= cid then

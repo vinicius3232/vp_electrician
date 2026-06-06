@@ -8,6 +8,7 @@
 ---------------------------------------------------------------------
 RegisterNetEvent('vp_electrician:completeTarget', function(targetId, success)
     local src = source
+    if type(targetId) ~= 'number' then return end
     if not Security.canAct(src, 'completeTarget', Config.Cooldowns.completeTarget) then return end
     local lobby, cid = vpGetLobbyBySrc(src)
     if not lobby or not lobby.started or not lobby.mission then return end
@@ -63,6 +64,7 @@ end)
 -- Liberar alvo sem concluir (jogador fechou/cancelou)
 RegisterNetEvent('vp_electrician:closeTarget', function(targetId)
     local src = source
+    if type(targetId) ~= 'number' then return end
     local lobby, cid = vpGetLobbyBySrc(src)
     if not lobby or not lobby.mission then return end
     local target = lobby.mission.targets[targetId]
@@ -76,6 +78,7 @@ end)
 ---------------------------------------------------------------------
 RegisterNetEvent('vp_electrician:buildEquipment', function(targetId, kind)
     local src = source
+    if type(targetId) ~= 'number' or type(kind) ~= 'string' then return end
     if not Security.canAct(src, 'build', Config.Cooldowns.build) then return end
     local lobby, cid = vpGetLobbyBySrc(src)
     if not lobby or not lobby.started or not lobby.mission then return end
@@ -93,6 +96,8 @@ end)
 
 RegisterNetEvent('vp_electrician:removeEquipment', function(targetId)
     local src = source
+    if type(targetId) ~= 'number' then return end
+    if not Security.canAct(src, 'removeEquipment', Config.Cooldowns.removeEquipment) then return end
     local lobby, cid = vpGetLobbyBySrc(src)
     if not lobby or not lobby.mission then return end
     local target = lobby.mission.targets[targetId]
@@ -106,6 +111,7 @@ end)
 -- quem enviou), que rodam o mesmo SlideObject localmente — igual ao script base.
 RegisterNetEvent('vp_electrician:moveLift', function(targetId, dir, toggle)
     local src = source
+    if type(targetId) ~= 'number' then return end
     if dir ~= 'up' and dir ~= 'down' then return end
     if type(toggle) ~= 'boolean' then return end
     local lobby, cid = vpGetLobbyBySrc(src)

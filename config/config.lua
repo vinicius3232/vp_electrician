@@ -26,6 +26,14 @@ Config.Cooldowns = {
     selectMission  = 1000,  -- ms entre selecoes de missao
     completeTarget = 2000,  -- ms entre consertos (acao de dinheiro/progressao)
     build          = 1500,  -- ms entre construir escada/lift
+    invite         = 1000,  -- ms entre convites
+    acceptInvite   = 1000,
+    kickPlayer     = 1000,
+    startJob       = 2000,
+    resetJob       = 2000,
+    deliverVehicle = 2000,
+    removeEquipment = 800,
+    -- moveLift NAO tem cooldown de proposito (o 'release' nao pode ser dropado)
 }
 
 ---------------------------------------------------------------------

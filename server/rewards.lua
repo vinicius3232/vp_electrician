@@ -5,6 +5,7 @@
 ---------------------------------------------------------------------
 RegisterNetEvent('vp_electrician:deliverVehicle', function()
     local src = source
+    if not Security.canAct(src, 'deliverVehicle', Config.Cooldowns.deliverVehicle) then return end
     local lobby, cid = vpGetLobbyBySrc(src)
     if not lobby or not lobby.finished then
         return exports.qbx_core:Notify(src, locale('job_not_started'), 'error')
