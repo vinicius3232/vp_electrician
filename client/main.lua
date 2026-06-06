@@ -156,10 +156,12 @@ RegisterNetEvent('vp_electrician:leftLobby', function()
 end)
 
 RegisterNetEvent('vp_electrician:rewardScreen', function(info)
-    lib.notify({
-        title = 'Missao concluida',
-        description = ('%s recebeu $%s e %s XP (%s reparos)'):format(info.name, info.money, info.xp, info.score),
-        type = 'success',
-        duration = 8000,
-    })
+    SendNUIMessage({ action = 'REWARD', data = info })
 end)
+
+-- comando p/ resetar o job em andamento (so o dono reseta; server valida)
+RegisterCommand(Config.JobResetCommand, function()
+    if JobActive then
+        TriggerServerEvent('vp_electrician:resetJob')
+    end
+end, false)

@@ -8,6 +8,7 @@ MissionVehicles = {}
 local missionBlips = {}
 local smokeFx = {}      -- [targetId] = ptfxHandle
 local deliveryBlip = nil
+local vehicleBlips = {} -- blips que seguem os veiculos do job
 
 ---------------------------------------------------------------------
 -- HELPERS
@@ -40,13 +41,43 @@ local function stopSmoke(targetId)
     end
 end
 
+--- Cria um blip por veiculo do job e o mantem seguindo o carro.
+function StartVehicleBlips()
+    for _, netId in ipairs(MissionVehicles) do
+        local blip = AddBlipForCoord(0.0, 0.0, 0.0)
+        SetBlipSprite(blip, 85)
+        SetBlipColour(blip, 5)
+        SetBlipScale(blip, 0.8)
+        SetBlipAsShortRange(blip, true)
+        BeginTextCommandSetBlipName('STRING')
+        AddTextComponentSubstringPlayerName('Caminhao Eletricista')
+        EndTextCommandSetBlipName(blip)
+        vehicleBlips[#vehicleBlips + 1] = { blip = blip, netId = netId }
+    end
+    CreateThread(function()
+        while JobActive and #vehicleBlips > 0 do
+            for _, vb in ipairs(vehicleBlips) do
+                local veh = NetworkGetEntityFromNetworkId(vb.netId)
+                if veh and veh ~= 0 and DoesEntityExist(veh) then
+                    local c = GetEntityCoords(veh)
+                    SetBlipCoords(vb.blip, c.x, c.y, c.z)
+                end
+            end
+            Wait(1500)
+        end
+    end)
+end
+
 local function clearMission()
     JobActive = false
     for _, blip in pairs(missionBlips) do RemoveBlip(blip) end
     missionBlips = {}
+    for _, vb in ipairs(vehicleBlips) do RemoveBlip(vb.blip) end
+    vehicleBlips = {}
     for id in pairs(smokeFx) do stopSmoke(id) end
     if deliveryBlip then RemoveBlip(deliveryBlip); deliveryBlip = nil end
     ClearEquipment() -- equipment.lua
+    SendNUIMessage({ action = 'HUD_HIDE' })
     CurrentMission = nil
     MissionRegion = nil
     MissionVehicles = {}
@@ -64,6 +95,10 @@ RegisterNetEvent('vp_electrician:jobStarted', function(data)
     for id, target in pairs(CurrentMission.targets) do
         missionBlips[id] = addBlip(target.coords, target.type, 354, 5)
     end
+    -- blip(s) seguindo o(s) veiculo(s) do job
+    StartVehicleBlips()
+    -- HUD ao vivo
+    SendNUIMessage({ action = 'HUD_SHOW', tasks = data.progress, players = data.players })
     lib.notify({ description = MissionRegion.title, type = 'inform' })
 end)
 
@@ -75,12 +110,15 @@ RegisterNetEvent('vp_electrician:targetUpdated', function(targetId, fixed, progr
         target.fixed = true
         if missionBlips[targetId] then RemoveBlip(missionBlips[targetId]); missionBlips[targetId] = nil end
         stopSmoke(targetId)
-        if progress then CurrentMission.progress = progress end
+        if progress then
+            CurrentMission.progress = progress
+            SendNUIMessage({ action = 'HUD_TASKS', tasks = progress })
+        end
     end
 end)
 
 RegisterNetEvent('vp_electrician:refreshScore', function(players)
-    -- hook p/ scoreboard NUI futuro
+    SendNUIMessage({ action = 'HUD_PLAYERS', players = players })
 end)
 
 RegisterNetEvent('vp_electrician:jobComplete', function(deliveryCoords)

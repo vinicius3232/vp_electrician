@@ -17,6 +17,7 @@ Config.RequiredJob = 'all' -- ex.: { electrician = 0 }  (nome do job = grade min
 
 Config.MaxPlayersPerLobby = 4
 Config.InviteMaxDistance  = 8.0   -- distancia maxima (m) para convidar (validada no server)
+Config.JobResetCommand    = 'eletricistareset' -- comando p/ resetar o job em andamento
 
 ---------------------------------------------------------------------
 -- COOLDOWNS / RATE LIMIT (regra nº4 do CLAUDE.md)
@@ -204,6 +205,100 @@ Config.Regions = {
                 vec3(847.65, -1728.46, 30.06),
                 vec3(806.26, -1766.21, 29.67),
                 vec3(802.22, -1732.87, 29.37),
+            },
+        },
+    },
+    {
+        key          = 3,
+        title        = 'Los Santos - Del Perro',
+        minLevel     = 0,
+        maxPlayers   = 4,
+        awards       = { money = 10000, xp = 1500, coopMultiplier = 1.5 },
+        spawnCoords  = {
+            vec4(533.26, -1595.88, 28.52, 136.32),
+            vec4(522.83, -1606.42, 28.64, 320.61),
+        },
+        deliveryCoords = vec3(533.26, -1595.88, 28.52),
+        jobTasks = {
+            { name = 'fixTrafo',       count = 2, label = 'Reparar Transformador' },
+            { name = 'fixHouseBoard',  count = 2, label = 'Reparar Quadro de Luz' },
+            { name = 'fixStreetLamp',  count = 2, label = 'Reparar Poste de Luz' },
+            { name = 'fixTrafficLamp', count = 2, label = 'Reparar Semaforo' },
+            { name = 'phonePole',      count = 2, label = 'Reparar Poste Telefonico' },
+        },
+        pools = {
+            fixTrafo = {
+                vec3(-1266.89, -1120.51, 7.17),
+                vec3(-1255.37, -1153.72, 7.9),
+                vec3(-1248.24, -1193.38, 8.43),
+            },
+            fixHouseBoard = {
+                vec3(-1114.89, -1218.55, 2.82),
+                vec3(-1108.51, -1223.37, 2.73),
+                vec3(-1114.95, -1260.07, 7.12),
+            },
+            fixStreetLamp = {
+                vec3(-1136.04, -1317.53, 10.8),
+                vec3(-1098.24, -1324.26, 11.02),
+                vec3(-1077.21, -1333.9, 11.91),
+            },
+            phonePole = {
+                vec3(-1268.56, -1034.12, 19.06),
+                vec3(-1281.57, -1070.53, 16.77),
+                vec3(-1295.11, -1077.0, 17.07),
+            },
+            fixTrafficLamp = {
+                vec3(-1292.26, -1177.19, 4.65),
+                vec3(-1280.68, -1192.81, 4.73),
+                vec3(-1296.91, -1207.0, 4.68),
+                vec3(-1312.14, -1192.63, 4.79),
+            },
+        },
+    },
+    {
+        key          = 4,
+        title        = 'Los Santos - Rockford',
+        minLevel     = 0,
+        maxPlayers   = 4,
+        awards       = { money = 15000, xp = 2000, coopMultiplier = 1.5 },
+        spawnCoords  = {
+            vec4(533.26, -1595.88, 28.52, 136.32),
+            vec4(522.83, -1606.42, 28.64, 320.61),
+        },
+        deliveryCoords = vec3(533.26, -1595.88, 28.52),
+        jobTasks = {
+            { name = 'fixTrafo',       count = 3, label = 'Reparar Transformador' },
+            { name = 'fixHouseBoard',  count = 3, label = 'Reparar Quadro de Luz' },
+            { name = 'fixStreetLamp',  count = 3, label = 'Reparar Poste de Luz' },
+            { name = 'fixTrafficLamp', count = 2, label = 'Reparar Semaforo' },
+            { name = 'phonePole',      count = 3, label = 'Reparar Poste Telefonico' },
+        },
+        pools = {
+            fixTrafo = {
+                vec3(-1311.33, -162.08, 45.38),
+                vec3(-1310.36, -177.1, 43.78),
+                vec3(-1350.07, -207.32, 43.82),
+            },
+            fixHouseBoard = {
+                vec3(-1160.88, -214.45, 37.63),
+                vec3(-1146.97, -361.66, 38.08),
+                vec3(-678.76, -176.53, 37.67),
+            },
+            fixStreetLamp = {
+                vec3(-288.16, -340.08, 35.44),
+                vec3(-307.27, -320.6, 36.54),
+                vec3(-326.56, -292.77, 37.17),
+            },
+            phonePole = {
+                vec3(-1650.41, -354.58, 60.19),
+                vec3(-1669.68, -368.92, 60.02),
+                vec3(-1702.68, -406.54, 57.31),
+            },
+            fixTrafficLamp = {
+                vec3(-679.53, -220.59, 37.06),
+                vec3(-695.05, -205.35, 37.41),
+                vec3(-723.64, -228.71, 37.38),
+                vec3(-704.67, -246.78, 37.21),
             },
         },
     },

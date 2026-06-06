@@ -297,8 +297,51 @@ window.addEventListener('message', (ev) => {
         case 'START_PANEL':  openPanel(d.settings || {}); break;
         case 'START_WIRING': openWiring(d.settings || {}); break;
         case 'CLOSE':        finish(false); break;
+        case 'HUD_SHOW':     hudShow(d.tasks, d.players); break;
+        case 'HUD_TASKS':    hudTasks(d.tasks); break;
+        case 'HUD_PLAYERS':  hudPlayers(d.players); break;
+        case 'HUD_HIDE':     $('hud').classList.add('hidden'); break;
+        case 'REWARD':       showReward(d.data); break;
     }
 });
+
+/* ============================================================
+   HUD ao vivo + tela de recompensa (sem foco)
+============================================================ */
+function hudShow(tasks, players) { hudTasks(tasks); hudPlayers(players); $('hud').classList.remove('hidden'); }
+function hudTasks(tasks) {
+    if (!tasks) return;
+    const c = $('hud-tasks'); c.innerHTML = '';
+    Object.keys(tasks).forEach(k => {
+        const t = tasks[k]; const done = t.made >= t.count;
+        const row = document.createElement('div');
+        row.className = 'hud-row' + (done ? ' done' : '');
+        row.innerHTML = `<span class="lbl">${t.label || k}</span><span class="val">${t.made}/${t.count}</span>`;
+        c.appendChild(row);
+    });
+}
+function hudPlayers(players) {
+    if (!players) return;
+    const c = $('hud-players'); c.innerHTML = '';
+    const arr = Array.isArray(players) ? players : Object.values(players);
+    arr.forEach(p => {
+        const row = document.createElement('div'); row.className = 'hud-row';
+        row.innerHTML = `<span class="lbl">${p.name || '?'}</span><span class="val">${p.score || 0}</span>`;
+        c.appendChild(row);
+    });
+}
+let rewardTimer = null;
+function showReward(data) {
+    if (!data) return;
+    $('reward-name').textContent = data.name || '';
+    $('reward-money').textContent = '$' + Number(data.money || 0).toLocaleString('pt-BR');
+    $('reward-xp').textContent = (data.xp || 0) + ' XP';
+    $('reward-score').textContent = data.score || 0;
+    $('hud').classList.add('hidden');
+    $('reward').classList.remove('hidden');
+    if (rewardTimer) clearTimeout(rewardTimer);
+    rewardTimer = setTimeout(() => $('reward').classList.add('hidden'), 6000);
+}
 
 // delegacao de eventos do painel
 $('panel-grid').addEventListener('mousemove', (e) => {

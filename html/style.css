@@ -167,3 +167,58 @@ html, body {
     background: #0c0d10;
 }
 .socket.done::after { background: var(--c); }
+
+/* ============================================================
+   HUD ao vivo (canto superior direito, sem foco)
+============================================================ */
+.hud {
+    position: absolute; top: 2vh; right: 1.5vw;
+    display: flex; flex-direction: column; gap: .8vh;
+    width: 15vw; pointer-events: none;
+}
+.hud-card {
+    background: linear-gradient(160deg, rgba(43,47,54,.92), rgba(20,23,27,.92));
+    border: 1px solid #0c0d10; border-left: 3px solid #ffcf24;
+    border-radius: 8px; padding: .7vw .8vw;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+.hud-title {
+    font-size: .75vw; letter-spacing: 2px; color: #ffcf24; font-weight: 800;
+    margin-bottom: .5vw; opacity: .9;
+}
+.hud-tasks, .hud-players { display: flex; flex-direction: column; gap: .35vw; }
+.hud-row { display: flex; align-items: center; justify-content: space-between; font-size: .8vw; color: #e7e9ec; }
+.hud-row .lbl { opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 10vw; }
+.hud-row .val { font-weight: 700; font-variant-numeric: tabular-nums; }
+.hud-row.done .lbl { opacity: .5; text-decoration: line-through; }
+.hud-row.done .val { color: #2dff42; }
+.hud-bar { height: .3vw; border-radius: 3px; background: rgba(255,255,255,.1); margin-top: .15vw; overflow: hidden; }
+.hud-bar > div { height: 100%; background: #2dff42; width: 0; transition: width .3s; }
+
+/* ============================================================
+   Tela de recompensa (centro, auto-fecha)
+============================================================ */
+.reward {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.5); pointer-events: none;
+}
+.reward-card {
+    width: 26vw; text-align: center; padding: 2vw;
+    background: linear-gradient(160deg, #2b2f36, #16191d);
+    border: 1px solid #0c0d10; border-radius: 14px;
+    box-shadow: 0 0 0 6px rgba(0,0,0,.35), 0 24px 60px rgba(0,0,0,.7);
+    animation: rewardIn .5s cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes rewardIn { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.reward-badge {
+    width: 3.4vw; height: 3.4vw; margin: 0 auto .8vw; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 1.8vw;
+    background: radial-gradient(circle, #ffcf24, #a37a00);
+    box-shadow: 0 0 24px rgba(255,207,36,.6);
+}
+.reward-title { font-size: 1.3vw; font-weight: 800; letter-spacing: 2px; color: #2dff42; }
+.reward-name { font-size: .95vw; opacity: .8; color: #e7e9ec; margin-top: .3vw; }
+.reward-stats { display: flex; justify-content: space-around; margin-top: 1.4vw; }
+.reward-stat { display: flex; flex-direction: column; gap: .3vw; }
+.reward-stat .rl { font-size: .7vw; letter-spacing: 1px; opacity: .6; color: #e7e9ec; }
+.reward-stat .rv { font-size: 1.2vw; font-weight: 800; color: #ffcf24; }

@@ -175,19 +175,18 @@ Resultado da varredura completa do `tw-electrician` (todos os eventos, NUI actio
 - Conclusão → entrega do veículo → recompensa dividida + XP/level + persistência.
 - Multiplicador coop; reset de job; limpeza em `playerDropped`/`onResourceStop`.
 
-### 9.2 Faltando para fidelidade total (roadmap)
-| # | Item | Original | Estado | Esforço |
-|---|------|----------|--------|---------|
-| 1 | **Lift móvel** (elevador com controle de altura ↑↓, trilhos, `SlideObject`) | sim | ⚠️ prop estático | médio |
-| 2 | **HUD/Scoreboard ao vivo** (progresso `x/N` por tarefa + score por player) | NUI `allScoreList`/`scoreList` | ⚠️ só `lib.notify` | médio (NUI) |
-| 3 | **Tela de recompensa** (earnings: $ + XP + score) | NUI `finishBox` | ⚠️ notify | baixo (NUI) |
-| 4 | **Comando** `jobresetelectrician` | sim | ❌ falta registrar | trivial |
-| 5 | **Blip do veículo** seguindo o caminhão | `UpdateBlipForVehicle` | ❌ | trivial |
-| 6 | **4 regiões** completas (temos 2) | 4 | ⚠️ 2 incluídas | baixo (dados) |
-| 7 | Extras do veículo (`SetVehicleExtra`) | cosmético | ❌ | trivial |
-| 8 | `FindZForCoords` p/ marcador no chão de postes | sim | ❌ (usa coord fixa) | baixo |
-| 9 | Anim de subir/descer escada/lift (`ladderUp/Down`) | sim | ⚠️ parcial | baixo |
-| 10 | Menu de lobby em **NUI custom** (hoje ox_lib context) | NUI Vue | ⚠️ funcional via ox_lib | alto (opcional) |
+### 9.2 Roadmap (atualizado)
+| # | Item | Original | Estado | Obs |
+|---|------|----------|--------|-----|
+| 1 | **Lift móvel** (plataforma sobe/desce ↑↓, trilhos, carrega o player, sync) | sim | ✅ implementado | ⚠️ "pegada" de ride precisa de ajuste fino in-game |
+| 2 | **HUD/Scoreboard ao vivo** (progresso `x/N` + score por player) | NUI | ✅ feito | verificado no preview |
+| 3 | **Tela de recompensa** (earnings: $ + XP + reparos) | NUI `finishBox` | ✅ feito | verificado no preview |
+| 4 | **Comando** de reset (`Config.JobResetCommand`) | sim | ✅ feito | `/eletricistareset` |
+| 5 | **Blip do veículo** seguindo o caminhão | sim | ✅ feito | thread atualiza a cada 1.5s |
+| 6 | **4 regiões** | 4 | ✅ feito | coords reais do original |
+| 7 | Extras do veículo (`SetVehicleExtra`) | cosmético | ❌ opcional | trivial |
+| 8 | `FindZForCoords` p/ marcador no chão de postes | sim | ⚠️ usa `GetGroundZ` no lift | baixo |
+| 9 | Menu de lobby em **NUI custom** (hoje ox_lib context) | NUI Vue | ⚠️ funcional via ox_lib | opcional |
 
 ### 9.3 Intencionalmente NÃO portado (por design/limpeza)
 - Backdoor RCE, token hardcoded, `PerformHttpRequest+load()` — **removidos por segurança**.

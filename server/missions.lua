@@ -91,3 +91,19 @@ RegisterNetEvent('vp_electrician:removeEquipment', function(targetId)
     target.equipment = nil
     vpBroadcast(lobby, 'vp_electrician:equipmentRemoved', target.id)
 end)
+
+-- altura do lift: o controlador move localmente e o servidor repassa aos outros
+RegisterNetEvent('vp_electrician:moveLift', function(targetId, height)
+    local src = source
+    if type(height) ~= 'number' then return end
+    local lobby, cid = vpGetLobbyBySrc(src)
+    if not lobby or not lobby.mission then return end
+    local target = lobby.mission.targets[targetId]
+    if not target or target.equipment ~= 'lift' then return end
+    target.liftHeight = height
+    for pcid, pl in pairs(lobby.players) do
+        if pl.src ~= src then
+            TriggerClientEvent('vp_electrician:liftMoved', pl.src, targetId, height)
+        end
+    end
+end)

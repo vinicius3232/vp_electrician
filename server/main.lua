@@ -269,6 +269,7 @@ RegisterNetEvent('vp_electrician:startJob', function()
         mission = lobby.mission,
         vehicles = lobby.vehicles,
         progress = lobby.mission.progress,
+        players = lobby.players,
     })
 end)
 
