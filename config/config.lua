@@ -84,6 +84,18 @@ Config.Minigames = {
         default        = { count = 4 },
     },
     failDamage = { min = 10, max = 25 }, -- dano ao falhar (choque eletrico)
+    -- anti-exploit: tempo minimo (s) entre abrir o alvo e concluir.
+    -- bloqueia 'completeTarget' instantaneo (bot) sem punir player rapido.
+    minSeconds = 1.5,
+}
+
+-- Rotulos amigaveis por tipo de tarefa (mostrados no prompt/HUD)
+Config.TaskLabels = {
+    fixTrafo       = 'Reparar Transformador',
+    fixHouseBoard  = 'Reparar Quadro de Luz',
+    fixStreetLamp  = 'Reparar Poste de Luz',
+    phonePole      = 'Reparar Poste Telefonico',
+    fixTrafficLamp = 'Reparar Semaforo',
 }
 
 ---------------------------------------------------------------------
@@ -161,7 +173,7 @@ Config.Regions = {
     {
         key          = 2,
         title        = 'Los Santos - Vespucci',
-        minLevel     = 0,
+        minLevel     = 2,
         maxPlayers   = 4,
         awards       = { money = 7500, xp = 1250, coopMultiplier = 1.5 },
         spawnCoords  = {
@@ -210,7 +222,7 @@ Config.Regions = {
     {
         key          = 3,
         title        = 'Los Santos - Del Perro',
-        minLevel     = 0,
+        minLevel     = 4,
         maxPlayers   = 4,
         awards       = { money = 10000, xp = 1500, coopMultiplier = 1.5 },
         spawnCoords  = {
@@ -257,7 +269,7 @@ Config.Regions = {
     {
         key          = 4,
         title        = 'Los Santos - Rockford',
-        minLevel     = 0,
+        minLevel     = 6,
         maxPlayers   = 4,
         awards       = { money = 15000, xp = 2000, coopMultiplier = 1.5 },
         spawnCoords  = {

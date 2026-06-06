@@ -4,6 +4,7 @@
     "job_not_started": "You haven't started the job yet.",
     "job_already_started": "The job has already started.",
     "mission_not_selected": "You haven't selected a mission.",
+    "min_level": "Level %s required for this region.",
     "lobby_full": "The lobby is full.",
     "already_in_lobby": "You are already in the lobby.",
     "player_far": "The invited player is too far away.",

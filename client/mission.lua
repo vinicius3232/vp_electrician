@@ -93,7 +93,7 @@ RegisterNetEvent('vp_electrician:jobStarted', function(data)
     MissionVehicles = data.vehicles or {}
 
     for id, target in pairs(CurrentMission.targets) do
-        missionBlips[id] = addBlip(target.coords, target.type, 354, 5)
+        missionBlips[id] = addBlip(target.coords, Config.TaskLabels[target.type] or target.type, 354, 5)
     end
     -- blip(s) seguindo o(s) veiculo(s) do job
     StartVehicleBlips()
@@ -158,7 +158,8 @@ CreateThread(function()
                                 -- precisa de escada/lift: delega ao equipment.lua
                                 HandleEquipmentPrompt(target, req)
                             else
-                                DrawText3D(target.coords, ('[E] %s'):format(target.type))
+                                local label = Config.TaskLabels[target.type] or target.type
+                                DrawText3D(target.coords, ('[E] %s'):format(label))
                                 if IsControlJustReleased(0, 38) then
                                     TryOpenTarget(target)
                                 end

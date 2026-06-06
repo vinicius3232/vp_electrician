@@ -4,6 +4,7 @@
     "job_not_started": "Voce ainda nao iniciou o trabalho.",
     "job_already_started": "O trabalho ja foi iniciado.",
     "mission_not_selected": "Voce nao selecionou uma missao.",
+    "min_level": "Nivel %s necessario para esta regiao.",
     "lobby_full": "O lobby esta cheio.",
     "already_in_lobby": "Voce ja esta no lobby.",
     "player_far": "O jogador convidado esta longe demais.",

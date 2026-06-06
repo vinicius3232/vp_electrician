@@ -24,7 +24,17 @@ RegisterNetEvent('vp_electrician:completeTarget', function(targetId, success)
         return
     end
 
+    -- anti-exploit: rejeita conclusao rapida demais (bot pulando o minigame)
+    local minMs = (Config.Minigames.minSeconds or 1.5) * 1000
+    if not target.openAt or (GetGameTimer() - target.openAt) < minMs then
+        Security.logSuspicious(src, 'completeTarget rapido demais (minigame pulado?)', { targetId = targetId })
+        target.openBy = nil
+        target.openAt = nil
+        return
+    end
+
     target.openBy = nil
+    target.openAt = nil
 
     if not success then
         -- falhou: libera o alvo (dano e aplicado no client)

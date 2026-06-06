@@ -88,7 +88,8 @@ O servidor é a única fonte de verdade. **Nunca confia** em `owneridentifier`/`
 
 - `Lobbies[ownerCid]` = estado completo (players, região, missão, veículos).
 - `PlayerLobby[citizenid]` = lookup reverso → o lobby é **derivado do `src`**, não enviado pelo client.
-- Cada conserto revalida: lobby existe? job começou? alvo aberto **por este player**? **proximity server-side**? cooldown?
+- Cada conserto revalida: lobby existe? job começou? alvo aberto **por este player**? **proximity server-side**? cooldown? **tempo mínimo desde a abertura** (anti-skip de minigame, `Config.Minigames.minSeconds`)?
+- **Gate de nível validado no servidor** (`selectMission`/`startJob`), não só no menu.
 - Recompensa só é paga após o servidor confirmar veículo no ponto de entrega (anti pagamento-duplo via `lobby.paid`).
 
 ### Contrato de eventos/callbacks (nossos)

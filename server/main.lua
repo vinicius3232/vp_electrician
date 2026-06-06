@@ -113,6 +113,7 @@ lib.callback.register('vp_electrician:openTarget', function(src, data)
     local req = Config.RequiresEquipment[target.type]
     if req and not target.equipped then return { needEquipment = req } end
     target.openBy = cid
+    target.openAt = GetGameTimer() -- anti-exploit: marca quando abriu
     return { ok = true, type = target.type }
 end)
 
@@ -196,6 +197,11 @@ RegisterNetEvent('vp_electrician:selectMission', function(regionKey)
         if r.key == regionKey then region = r break end
     end
     if not region then return end
+    -- gate de nivel (validado no SERVIDOR, nao so no menu)
+    local prof = getProfile(cid)
+    if prof.level < (region.minLevel or 0) then
+        return exports.qbx_core:Notify(src, locale('min_level', region.minLevel), 'error')
+    end
     lobby.region = region
     broadcast(lobby, 'vp_electrician:refreshLobby', lobby.players, region)
 end)
@@ -235,6 +241,9 @@ RegisterNetEvent('vp_electrician:startJob', function()
     end
     if not lobby.region then
         return exports.qbx_core:Notify(src, locale('mission_not_selected'), 'error')
+    end
+    if getProfile(cid).level < (lobby.region.minLevel or 0) then
+        return exports.qbx_core:Notify(src, locale('min_level', lobby.region.minLevel), 'error')
     end
 
     lobby.started = true
