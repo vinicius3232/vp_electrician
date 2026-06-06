@@ -14,6 +14,8 @@ dependencies {
     'ox_lib',
     'ox_inventory',
     'ox_target',
+    'ox_fuel',          -- combustivel via statebag 'fuel'
+    'qbx_vehiclekeys',  -- exports.qbx_vehiclekeys:GiveKeys
     'oxmysql',
 }
 
