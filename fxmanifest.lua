@@ -1,0 +1,50 @@
+fx_version 'cerulean'
+game 'gta5'
+lua54 'yes'
+
+name 'vp_electrician'
+author 'vinicius3232'
+version '1.0.0'
+description 'Job cooperativo de eletricista por regiao (rebuild nativo QBox/ox) - sem backdoor'
+
+-- Dependencias reais deste servidor (versoes confirmadas):
+--  qbx_core 1.23.0 | ox_lib 3.32.2 | ox_inventory 2.44.8 | ox_target | ox_fuel | qbx_vehiclekeys | oxmysql
+dependencies {
+    'qbx_core',
+    'ox_lib',
+    'ox_inventory',
+    'ox_target',
+    'oxmysql',
+}
+
+shared_scripts {
+    '@ox_lib/init.lua',
+    'config/config.lua',
+    'shared/utils.lua',
+}
+
+client_scripts {
+    'client/main.lua',
+    'client/mission.lua',
+    'client/equipment.lua',
+    'client/minigames.lua',
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/database.lua',
+    'server/security.lua',
+    'server/main.lua',
+    'server/missions.lua',
+    'server/rewards.lua',
+}
+
+-- Locales via ox_lib (pt-br padrao)
+files {
+    'locales/*.json',
+    'html/index.html',
+    'html/style.css',
+    'html/app.js',
+}
+
+ui_page 'html/index.html'
