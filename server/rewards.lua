@@ -31,8 +31,21 @@ RegisterNetEvent('vp_electrician:deliverVehicle', function()
     if lobby.paid then return end
     lobby.paid = true
 
-    local perPlayer = math.ceil(lobby.rewardMoney / math.max(1, lobby.playerCount))
+    local equalPay = math.ceil(lobby.rewardMoney / math.max(1, lobby.playerCount))
     local xp = lobby.rewardXp
+
+    -- reembolsa o deposito ao DONO (se pagou)
+    if lobby.depositPaid then
+        local ownerPl = lobby.players[lobby.owner]
+        if ownerPl then
+            local op = exports.qbx_core:GetPlayer(ownerPl.src)
+            if op then
+                op.Functions.AddMoney(lobby.depositAccount or 'bank', lobby.deposit, 'vp_electrician-deposit-refund')
+                exports.qbx_core:Notify(ownerPl.src, locale('deposit_refunded', lobby.deposit), 'success')
+            end
+        end
+        lobby.depositPaid = false
+    end
 
     -- deleta veiculos
     for _, netId in ipairs(lobby.vehicles) do
@@ -40,36 +53,40 @@ RegisterNetEvent('vp_electrician:deliverVehicle', function()
         if veh and veh ~= 0 and DoesEntityExist(veh) then DeleteEntity(veh) end
     end
 
-    -- paga cada player
+    -- paga cada player (boss split, se definido; senao divisao igual)
     for pcid, pl in pairs(lobby.players) do
+        local pay = equalPay
+        if lobby.split then
+            pay = math.ceil(lobby.rewardMoney * (lobby.split[pcid] or 0) / 100)
+        end
         local player = exports.qbx_core:GetPlayer(pl.src)
         if player then
-            player.Functions.AddMoney('bank', perPlayer, 'vp_electrician-reward')
+            if pay > 0 then player.Functions.AddMoney('bank', pay, 'vp_electrician-reward') end
             local prof = exports[GetCurrentResourceName()]:getProfile(pcid)
             local newLevel, newXp, leveledUp = Utils.applyXP(prof.level, prof.xp, xp, Config.RequiredXP, Config.MaxLevel)
             prof.level, prof.xp = newLevel, newXp
             DB.saveProfile(pcid, newXp, newLevel)
-            exports.qbx_core:Notify(pl.src, locale('reward_received', perPlayer, xp), 'success')
+            exports.qbx_core:Notify(pl.src, locale('reward_received', pay, xp), 'success')
             if leveledUp then
                 exports.qbx_core:Notify(pl.src, locale('level_up', newLevel), 'success')
             end
             TriggerClientEvent('vp_electrician:rewardScreen', pl.src, {
                 name = pl.name,
-                money = perPlayer,
+                money = pay,
                 xp = xp,
                 score = pl.score or 0,
             })
         end
     end
 
-    sendRewardLog(lobby, perPlayer)
+    sendRewardLog(lobby, lobby.rewardMoney)
     vpDestroyLobby(cid)
 end)
 
 ---------------------------------------------------------------------
 -- LOG (opcional - webhook por convar, sem token hardcoded)
 ---------------------------------------------------------------------
-function sendRewardLog(lobby, perPlayer)
+function sendRewardLog(lobby, totalPay)
     local url = GetConvar(Config.LogWebhookConvar, '')
     if url == '' then return end
     local names = {}
@@ -82,7 +99,7 @@ function sendRewardLog(lobby, perPlayer)
             fields = {
                 { name = 'Regiao', value = lobby.region.title, inline = true },
                 { name = 'Jogadores', value = table.concat(names, ', '), inline = false },
-                { name = 'Pagamento (cada)', value = ('$%s'):format(perPlayer), inline = true },
+                { name = 'Pagamento total', value = ('$%s'):format(totalPay), inline = true },
             },
             footer = { text = os.date('%Y-%m-%d %H:%M:%S') },
         } },

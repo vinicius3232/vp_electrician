@@ -52,6 +52,13 @@ RegisterNetEvent('vp_electrician:completeTarget', function(targetId, success)
     -- credita score do jogador (para o scoreboard)
     lobby.players[cid].score = (lobby.players[cid].score or 0) + 1
 
+    -- itens de recompensa por reparo (chance %) -> vao para quem consertou
+    for _, ri in ipairs(Config.RewardItems) do
+        if ri.item and math.random(100) <= (ri.chance or 0) then
+            exports.ox_inventory:AddItem(src, ri.item, ri.amount or 1)
+        end
+    end
+
     vpBroadcast(lobby, 'vp_electrician:targetUpdated', target.id, true, lobby.mission.progress)
     vpBroadcast(lobby, 'vp_electrician:refreshScore', lobby.players)
 

@@ -119,6 +119,10 @@ O servidor é a única fonte de verdade. **Nunca confia** em `owneridentifier`/`
 | `MaxPlayersPerLobby` / `InviteMaxDistance` | limites de coop |
 | `Cooldowns` | `selectMission`, `completeTarget` (≥2s), `build` |
 | `Vehicle` | modelos primário/secundário, fuel |
+| `VehicleDeposit` | depósito cobrado do dono ao iniciar; reembolsado ao entregar; perdido se abandonar |
+| `RequiredItem` | item exigido p/ iniciar (ox_inventory); `consume`/`wholeTeam` |
+| `RewardItems` | itens dropados por reparo (chance %) |
+| `BossRewardSplit` | dono define a % de pagamento de cada membro no menu |
 | `Equipment` | modelos de escada/lift, distância de construção |
 | `Minigames.byTask` | qual minigame cada tarefa usa |
 | `Minigames.welding/panel/wiring` | parâmetros por tarefa |
@@ -165,6 +169,7 @@ sql/migration.sql      tabela com PRIMARY KEY
 - Conclusão → entrega do veículo → recompensa dividida + XP/level + persistência.
 - Multiplicador coop; comando de reset; blip do veículo; HUD ao vivo + tela de recompensa.
 - 4 regiões; limpeza em `playerDropped`/`onResourceStop`.
+- **Depósito de veículo** (cobra/reembolsa/perde no abandono), **itens de recompensa por reparo**, **item obrigatório** p/ iniciar, **boss split** de recompensa.
 
 ### 9.2 Roadmap (opcional)
 | Item | Estado | Obs |

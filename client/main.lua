@@ -112,6 +112,32 @@ function OpenMenu()
         end,
     }
 
+    -- dividir recompensa (boss split) - so dono, com 2+ membros
+    local memberCids = {}
+    for c in pairs(lobbyPlayers) do memberCids[#memberCids + 1] = c end
+    if Config.BossRewardSplit and data.isOwner and #memberCids > 1 then
+        options[#options + 1] = {
+            title = 'Dividir recompensa',
+            icon = 'percent',
+            description = 'Defina a % de pagamento de cada membro',
+            onSelect = function()
+                local fields, def = {}, math.floor(100 / #memberCids)
+                for _, c in ipairs(memberCids) do
+                    fields[#fields + 1] = {
+                        type = 'number', label = (lobbyPlayers[c].name or c) .. ' (%)',
+                        default = def, min = 0, max = 100,
+                    }
+                end
+                local input = lib.inputDialog('Dividir recompensa', fields)
+                if input then
+                    local split = {}
+                    for i, c in ipairs(memberCids) do split[c] = tonumber(input[i]) or 0 end
+                    TriggerServerEvent('vp_electrician:setRewardSplit', split)
+                end
+            end,
+        }
+    end
+
     -- iniciar / resetar
     options[#options + 1] = {
         title = selectedRegion and 'INICIAR TRABALHO' or 'Selecione uma regiao',

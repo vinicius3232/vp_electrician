@@ -94,6 +94,7 @@ lib.callback.register('vp_electrician:getProfile', function(src)
         nextXp = Config.RequiredXP[prof.level] or 0,
         players = lobby.players,
         regions = Config.Regions,
+        isOwner = (lobby.owner == cid),
     }
 end)
 
@@ -251,6 +252,38 @@ RegisterNetEvent('vp_electrician:startJob', function()
         return exports.qbx_core:Notify(src, locale('min_level', lobby.region.minLevel), 'error')
     end
 
+    -- item obrigatorio (ox_inventory)
+    if Config.RequiredItem.enable then
+        local function hasItem(s) return (exports.ox_inventory:GetItemCount(s, Config.RequiredItem.name) or 0) > 0 end
+        if Config.RequiredItem.wholeTeam then
+            for _, pl in pairs(lobby.players) do
+                if not hasItem(pl.src) then return exports.qbx_core:Notify(src, locale('need_item'), 'error') end
+            end
+        elseif not hasItem(src) then
+            return exports.qbx_core:Notify(src, locale('need_item'), 'error')
+        end
+    end
+
+    -- deposito do veiculo (cobrado do DONO)
+    if Config.VehicleDeposit.enable then
+        local acc = Config.VehicleDeposit.account
+        local amount = Config.VehicleDeposit.amount
+        local p = exports.qbx_core:GetPlayer(src)
+        if not p or (p.PlayerData.money[acc] or 0) < amount then
+            return exports.qbx_core:Notify(src, locale('dont_have_deposit', amount), 'error')
+        end
+        p.Functions.RemoveMoney(acc, amount, 'vp_electrician-deposit')
+        lobby.depositPaid = true
+        lobby.deposit = amount
+        lobby.depositAccount = acc
+        exports.qbx_core:Notify(src, locale('deposit_charged', amount), 'inform')
+    end
+
+    -- consome item obrigatorio (do dono) apos confirmar
+    if Config.RequiredItem.enable and Config.RequiredItem.consume then
+        exports.ox_inventory:RemoveItem(src, Config.RequiredItem.name, 1)
+    end
+
     lobby.started = true
     lobby.finished = false
     lobby.mission = generateMission(lobby.region)
@@ -287,6 +320,29 @@ RegisterNetEvent('vp_electrician:startJob', function()
     })
 end)
 
+-- boss split: dono define a % de pagamento de cada membro
+RegisterNetEvent('vp_electrician:setRewardSplit', function(split)
+    local src = source
+    if not Config.BossRewardSplit then return end
+    if not Security.canAct(src, 'setRewardSplit', 1000) then return end
+    if type(split) ~= 'table' then return end
+    local lobby, cid = getLobbyBySrc(src)
+    if not lobby or lobby.owner ~= cid then return end
+    local sum = 0
+    for k, v in pairs(split) do
+        if type(k) ~= 'string' or type(v) ~= 'number' or v < 0 or v > 100 then
+            return exports.qbx_core:Notify(src, locale('split_invalid'), 'error')
+        end
+        if not lobby.players[k] then return end -- cid invalido
+        sum = sum + v
+    end
+    if sum > 100 then
+        return exports.qbx_core:Notify(src, locale('split_invalid'), 'error')
+    end
+    lobby.split = split
+    exports.qbx_core:Notify(src, locale('split_set'), 'success')
+end)
+
 RegisterNetEvent('vp_electrician:resetJob', function()
     local src = source
     if not Security.canAct(src, 'resetJob', Config.Cooldowns.resetJob) then return end
@@ -294,6 +350,11 @@ RegisterNetEvent('vp_electrician:resetJob', function()
     if not lobby then return end
     if lobby.owner ~= cid then
         return exports.qbx_core:Notify(src, locale('not_owner'), 'error')
+    end
+    -- abandono sem entregar = deposito perdido
+    if lobby.depositPaid then
+        exports.qbx_core:Notify(src, locale('deposit_lost', lobby.deposit), 'error')
+        lobby.depositPaid = false
     end
     broadcast(lobby, 'vp_electrician:jobReset')
     destroyLobby(cid)

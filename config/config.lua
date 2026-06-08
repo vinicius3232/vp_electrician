@@ -45,6 +45,31 @@ Config.Vehicle = {
     fuel      = 100.0,
 }
 
+-- Deposito do veiculo: cobrado do DONO ao iniciar; reembolsado ao entregar.
+-- Se o lobby for resetado/abandonado sem entregar, o deposito e PERDIDO.
+Config.VehicleDeposit = {
+    enable  = true,
+    amount  = 500,
+    account = 'bank', -- 'bank' | 'cash'
+}
+
+-- Item obrigatorio no inventario para iniciar o job (ox_inventory).
+Config.RequiredItem = {
+    enable    = false,
+    name      = 'tool_box',
+    consume   = false,  -- remove o item ao iniciar?
+    wholeTeam = false,  -- exige de todos os membros (false = so o dono)
+}
+
+-- Itens dropados por reparo concluido (chance %). Vao para quem consertou.
+Config.RewardItems = {
+    -- { item = 'scrapmetal', chance = 50, amount = 1 },
+    -- { item = 'copper',     chance = 25, amount = 1 },
+}
+
+-- Boss split: dono do lobby pode definir a % de pagamento de cada membro.
+Config.BossRewardSplit = true
+
 ---------------------------------------------------------------------
 -- EQUIPAMENTO (props sincronizados)
 ---------------------------------------------------------------------
